@@ -1,0 +1,298 @@
+.phone-container {
+  width: 100%;
+  max-width: 390px;
+  height: 100vh;
+  margin: auto;
+  background: #f6f3f1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+
+  animation: fadeIn 0.6s ease;
+}
+
+/* =========================
+   TOP SECTION
+========================= */
+
+.top-section {
+  background: linear-gradient(
+    180deg,
+    #a56eff 0%,
+    #8d5cf6 100%
+  );
+
+  border-bottom-left-radius: 35px;
+  border-bottom-right-radius: 35px;
+
+  padding: 25px 20px 30px;
+
+  animation: slideTop 0.8s ease;
+}
+
+.logo {
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 500;
+
+  opacity: 0.9;
+}
+
+.welcome-card h1 {
+  color: white;
+
+  font-size: 52px;
+
+  line-height: 0.95;
+
+  margin-bottom: 16px;
+
+  font-weight: 800;
+
+  letter-spacing: -2px;
+
+  animation: fadeUp 0.8s ease;
+}
+
+.welcome-card p {
+  color: rgba(255,255,255,0.92);
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  margin-bottom: 28px;
+
+  animation: fadeUp 1s ease;
+}
+
+/* =========================
+   ROLE SELECTOR
+========================= */
+
+.role-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.role {
+  flex: 1;
+  border: none;
+  border-radius: 20px;
+  padding: 10px;
+  background: white;
+  color: #777;
+  font-size: 14px;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.role:hover {
+  transform: translateY(-2px);
+}
+
+.role:active {
+  transform: scale(0.96);
+}
+
+.role.active {
+  background: #e6d6ff;
+  color: #7b49e7;
+  font-weight: bold;
+
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.4),
+    0 6px 14px rgba(123,73,231,0.25);
+}
+
+/* =========================
+   FORM SECTION
+========================= */
+
+.form-section {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+
+  animation: fadeUp 1s ease;
+}
+
+.form-section input {
+  font-size: 15px;
+  height: 47px;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  padding: 0 20px;
+  margin-bottom: 16px;
+  background: white;
+  font-size: 14px;
+
+  transition: all 0.25s ease;
+
+  outline: none;
+}
+
+.form-section input:hover {
+  border-color: #b79cff;
+}
+
+.form-section input:focus {
+  border-color: #8d5cf6;
+
+  box-shadow:
+    0 0 0 4px rgba(141,92,246,0.12);
+
+  transform: translateY(-1px);
+}
+
+.forgot {
+  font-size: 13px;
+  color: #777;
+  text-align: right;
+  margin-bottom: 30px;
+
+  transition: 0.2s ease;
+
+  cursor: pointer;
+}
+
+.forgot:hover {
+  color: #8d5cf6;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.login-btn {
+  height: 52px;
+  border: none;
+  border-radius: 18px;
+
+  background: linear-gradient(
+    180deg,
+    #f4b29b 0%,
+    #ef9c7d 100%
+  );
+
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  box-shadow:
+    0 8px 18px rgba(239,156,125,0.35);
+}
+
+.login-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 22px rgba(239,156,125,0.45);
+}
+
+.login-btn:active {
+  transform: scale(0.97);
+}
+
+/* =========================
+   DIVIDER
+========================= */
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 25px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider span {
+  margin: 0 12px;
+  color: #999;
+}
+
+/* =========================
+   REGISTER
+========================= */
+
+.register-text {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.register-text a {
+  color: #8d5cf6;
+  text-decoration: none;
+  font-weight: bold;
+
+  transition: 0.2s ease;
+}
+
+.register-text a:hover {
+  opacity: 0.7;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideTop {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+}
+.form-section input::placeholder {
+  color: #8d8d8d;
+  font-size: 14px;
+}
+
+.form-section input {
+  border: 2px solid #aaa39c;
+}
+.form-section input {
+  color: #333333;
+}
