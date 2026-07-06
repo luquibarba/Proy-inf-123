@@ -5,6 +5,48 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import Usuario, Chat, Mensaje, PerfilWorker, PerfilClient, ProyectoWorker, Publicacion, Solicitud, Valoracion
+import re
+import unicodedata
+
+
+# ====================
+# MODERACIÓN DE MENSAJES
+# ====================
+# Evita que se compartan datos de contacto (para no perder el comercio
+# dentro de la app) e insultos básicos. Es una validación simple; para
+# algo más robusto conviene una librería de profanidad o un servicio externo.
+
+EMAIL_REGEX = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
+TELEFONO_REGEX = re.compile(r'(\+?\d[\d\s\-\.\(\)]{7,}\d)')
+
+PALABRAS_PROHIBIDAS = [
+    'idiota', 'estupido', 'imbecil', 'pelotudo', 'boludo',
+    'puto', 'puta', 'mierda', 'tarado', 'inutil', 'forro',
+    'pendejo', 'concha', 'garcha',
+]
+
+
+def _normalizar(texto):
+    """Quita acentos y pasa a minúsculas para poder comparar palabras."""
+    sin_acentos = unicodedata.normalize('NFD', texto.lower())
+    return ''.join(c for c in sin_acentos if unicodedata.category(c) != 'Mn')
+
+
+def validar_mensaje(texto):
+    """Devuelve un mensaje de error si el texto no puede enviarse, o None si está OK."""
+    if EMAIL_REGEX.search(texto):
+        return 'No podés compartir correos electrónicos por el chat.'
+
+    digitos = re.sub(r'\D', '', texto)
+    if TELEFONO_REGEX.search(texto) and len(digitos) >= 8:
+        return 'No podés compartir números de teléfono por el chat.'
+
+    normalizado = _normalizar(texto)
+    palabras = re.findall(r'\w+', normalizado)
+    if any(p in PALABRAS_PROHIBIDAS for p in palabras):
+        return 'Tu mensaje contiene lenguaje inapropiado.'
+
+    return None
 
 
 # ====================
@@ -96,6 +138,18 @@ def lista_chats(request):
         otro_usuario = chat.client if usuario.rol == 'worker' else chat.worker
         ultimo_mensaje = chat.mensajes.order_by('-enviado_en').first()
 
+        # Obtener foto del otro usuario según su rol
+        foto_url = None
+        try:
+            if otro_usuario.rol == 'worker':
+                if otro_usuario.perfil_worker.foto:
+                    foto_url = request.build_absolute_uri(otro_usuario.perfil_worker.foto.url)
+            else:
+                if otro_usuario.perfil_client.foto:
+                    foto_url = request.build_absolute_uri(otro_usuario.perfil_client.foto.url)
+        except:
+            foto_url = None
+
         data.append({
             'id': chat.id,
             'otro_usuario_id': otro_usuario.id,
@@ -104,6 +158,7 @@ def lista_chats(request):
             'time': ultimo_mensaje.enviado_en.strftime('%H:%M') if ultimo_mensaje else '',
             'unread': chat.mensajes.filter(leido=False).exclude(emisor=usuario).count(),
             'online': False,
+            'foto': foto_url,
         })
 
     return Response(data)
@@ -131,11 +186,24 @@ def mensajes_chat(request, chat_id):
 
         chat.mensajes.filter(leido=False).exclude(emisor=request.user).update(leido=True)
 
+        otro_usuario = chat.client if request.user.rol == 'worker' else chat.worker
+        foto_otro = None
+        try:
+            if otro_usuario.rol == 'worker':
+                perfil_otro = otro_usuario.perfil_worker
+            else:
+                perfil_otro = otro_usuario.perfil_client
+            if perfil_otro.foto:
+                foto_otro = request.build_absolute_uri(perfil_otro.foto.url)
+        except (PerfilWorker.DoesNotExist, PerfilClient.DoesNotExist, AttributeError, ValueError):
+            foto_otro = None
+
         return Response({
             'mensajes': data,
             'mi_id': request.user.id,
             'mi_rol': request.user.rol,
             'nombre_otro': f"{chat.client.first_name}" if request.user.rol == 'worker' else f"{chat.worker.first_name}",
+            'foto_otro': foto_otro,
             'otro_id': chat.client.id if request.user.rol == 'worker' else chat.worker.id,
             'worker_completo': chat.worker_completo,
             'client_completo': chat.client_completo,
@@ -147,6 +215,10 @@ def mensajes_chat(request, chat_id):
         texto = request.data.get('texto')
         if not texto:
             return Response({'error': 'El mensaje no puede estar vacío'}, status=400)
+
+        error_moderacion = validar_mensaje(texto)
+        if error_moderacion:
+            return Response({'error': error_moderacion}, status=400)
 
         mensaje = Mensaje.objects.create(
             chat=chat,
@@ -277,6 +349,9 @@ def perfil_worker_propio(request):
             import json
             perfil.disponibilidad = json.loads(request.data['disponibilidad'])
         if 'foto' in request.FILES:
+            import os
+            if perfil.foto and os.path.isfile(perfil.foto.path):
+                os.remove(perfil.foto.path)
             perfil.foto = request.FILES['foto']
 
         perfil.save()
@@ -313,6 +388,13 @@ def proyectos_worker(request):
 def eliminar_proyecto(request, proyecto_id):
     try:
         proyecto = ProyectoWorker.objects.get(id=proyecto_id, worker__usuario=request.user)
+        
+        # Borrar el archivo físico
+        if proyecto.archivo:
+            import os
+            if os.path.isfile(proyecto.archivo.path):
+                os.remove(proyecto.archivo.path)
+        
         proyecto.delete()
         return Response({'mensaje': 'Proyecto eliminado'})
     except ProyectoWorker.DoesNotExist:
@@ -375,6 +457,9 @@ def perfil_client_propio(request):
         if 'zona' in request.data:
             perfil.zona = request.data['zona']
         if 'foto' in request.FILES:
+            import os
+            if perfil.foto and os.path.isfile(perfil.foto.path):
+                os.remove(perfil.foto.path)
             perfil.foto = request.FILES['foto']
         perfil.save()
         return Response({'mensaje': 'Perfil actualizado correctamente'})
@@ -404,11 +489,6 @@ def resenas_client(request, usuario_id):
     } for v in valoraciones]
 
     return Response(data)
-# ====================
-# PUBLICACIONES — CLIENTE
-# GET: sus publicaciones + solicitudes aceptadas de la más reciente
-# POST: crear publicación
-# ====================
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def publicaciones_cliente(request):
@@ -418,8 +498,17 @@ def publicaciones_cliente(request):
         data = []
         for pub in publicaciones:
             archivo_url = request.build_absolute_uri(pub.archivo.url) if pub.archivo else None
+
+            # Buscar chat asociado si está en proceso
+            chat_id = None
+            if pub.estado == 'en_proceso':
+                chat = Chat.objects.filter(publicacion=pub).first()
+                if chat:
+                    chat_id = chat.id
+
             data.append({
                 'id': pub.id,
+                'chat_id': chat_id,
                 'titulo': pub.titulo,
                 'descripcion': pub.descripcion,
                 'categoria': pub.categoria,
@@ -431,7 +520,6 @@ def publicaciones_cliente(request):
 
         # Solicitudes de TODAS las publicaciones
         solicitudes_data = []
-
         solicitudes = Solicitud.objects.filter(
             publicacion__in=publicaciones,
             estado='pendiente'
@@ -450,7 +538,6 @@ def publicaciones_cliente(request):
                 calificacion = '0'
                 zona = ''
 
-            # ← esto debe estar FUERA del except, al mismo nivel que el try
             solicitudes_data.append({
                 'id': sol.id,
                 'worker_id': sol.worker.id,
@@ -498,7 +585,6 @@ def publicaciones_cliente(request):
             'estado': pub.estado,
             'creada_en': pub.creada_en.strftime('%d/%m/%Y'),
         }, status=201)
-
 
 # ====================
 # PUBLICACIONES — WORKER
@@ -712,6 +798,7 @@ def resenas_client(request, usuario_id):
     } for v in valoraciones]
 
     return Response(data)
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def perfil_usuario_publico(request, usuario_id):
     try:
@@ -995,3 +1082,57 @@ def workers_destacados(request):
         'precio_hora': str(p.precio_hora) if p.precio_hora else None,
     } for p in perfiles]
     return Response(data)
+
+# ====================
+# RESUMEN DEL TRABAJO
+# ====================
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def resumen_trabajo(request, chat_id):
+    try:
+        chat = Chat.objects.get(id=chat_id)
+    except Chat.DoesNotExist:
+        return Response({'error': 'Chat no encontrado'}, status=404)
+
+    if request.method == 'GET':
+        solicitud = Solicitud.objects.filter(
+            publicacion=chat.publicacion,
+            worker=chat.worker,
+            estado='aceptada'
+        ).first()
+
+        cliente = chat.client
+        worker = chat.worker
+
+        try:
+            perfil_worker = worker.perfil_worker
+        except PerfilWorker.DoesNotExist:
+            perfil_worker = None
+
+        return Response({
+            'titulo': chat.publicacion.titulo,
+            'descripcion': chat.publicacion.descripcion,
+            'fecha_concordancia': chat.creado_en.strftime('%d/%m/%Y %H:%M'),
+            'fecha_hora_encuentro': chat.fecha_hora_encuentro.strftime('%d/%m/%Y %H:%M') if chat.fecha_hora_encuentro else None,
+            'presupuesto': str(solicitud.precio_presupuesto) if solicitud else None,
+            'mi_rol': request.user.rol,
+            # Datos del cliente
+            'cliente_nombre': f"{cliente.first_name} {cliente.last_name}",
+            'cliente_provincia': cliente.provincia,
+            'cliente_calle': cliente.calle,
+            'cliente_numero': cliente.numero,
+            # Datos del worker
+            'worker_nombre': f"{worker.first_name} {worker.last_name}",
+            'worker_dni': worker.dni,
+            'worker_foto': request.build_absolute_uri(perfil_worker.foto.url) if perfil_worker and perfil_worker.foto else None,
+            'worker_calificacion': str(perfil_worker.calificacion) if perfil_worker else '0',
+            'worker_id': worker.id,
+        })
+
+    if request.method == 'PUT':
+        fecha_hora = request.data.get('fecha_hora_encuentro')
+        if fecha_hora:
+            from django.utils.dateparse import parse_datetime
+            chat.fecha_hora_encuentro = parse_datetime(fecha_hora)
+            chat.save()
+        return Response({'mensaje': 'Fecha de encuentro actualizada'})

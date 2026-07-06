@@ -3,6 +3,7 @@ import { Home, Search, FileText, MessageSquare, User, Star, MapPin } from "lucid
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { API_URL } from "../../config";
+import Navbar from "../../components/Navbar/Navbar";
 
 const ESTADO_COLOR = {
   pendiente: "#f0c64f",
@@ -214,23 +215,7 @@ function ClientHome() {
       </div>
 
       {/* NAVBAR */}
-      <div className="bottom-navbar">
-        <div className="nav-item active">
-          <Home size={18} /><span>Inicio</span>
-        </div>
-        <div className="nav-item">
-          <Search size={18} /><span>Buscar</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/client/publicaciones")}>
-          <FileText size={18} /><span>Solicitudes</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/chats", { state: { role: "client" } })}>
-          <MessageSquare size={18} /><span>Chat</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/client/perfil")}>
-          <User size={18} /><span>Perfil</span>
-        </div>
-      </div>
+      <Navbar rol="client" activo="Inicio" />
 
     </div>
   );

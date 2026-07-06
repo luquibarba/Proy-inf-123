@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import "./WorkerProfile.css";
 import { API_URL } from "../../config";
+import Navbar from "../../components/Navbar/Navbar";
 
 const CATEGORIAS_DISPONIBLES = [
   "Plomero", "Electricista", "Pintor", "Carpintero",
@@ -320,29 +321,35 @@ function WorkerProfile() {
       <div className="wp-section">
         <div className="wp-section-header">
           <h3 className="wp-section-title">Proyectos</h3>
-          <button className="wp-add-btn" onClick={() => proyectoRef.current.click()}>
-            <Plus size={14} /> Agregar
-          </button>
-          <input ref={proyectoRef} type="file" accept="image/*,video/*" hidden onChange={subirProyecto} />
+          {editando && (
+            <>
+              <button className="wp-add-btn" onClick={() => proyectoRef.current.click()}>
+                <Plus size={14} /> Agregar
+              </button>
+              <input ref={proyectoRef} type="file" accept="image/*,video/*" hidden onChange={subirProyecto} />
+            </>
+          )}
         </div>
-        {perfil?.proyectos?.length > 0
-          ? (
-            <div className="wp-projects-grid">
-              {perfil.proyectos.map(p => (
-                <div key={p.id} className="wp-project-card">
-                  {p.archivo.match(/\.(mp4|webm|mov)$/i)
-                    ? <video src={p.archivo} className="wp-project-media" controls />
-                    : <img src={p.archivo} alt={p.descripcion} className="wp-project-media" />
-                  }
-                  <button className="wp-project-delete" onClick={() => eliminarProyecto(p.id)}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )
-          : <p className="wp-empty">Todavía no subiste proyectos</p>
-        }
+          {perfil?.proyectos?.length > 0
+            ? (
+              <div className="wp-projects-grid">
+                {perfil.proyectos.map(p => (
+                  <div key={p.id} className="wp-project-card">
+                    {p.archivo.match(/\.(mp4|webm|mov)$/i)
+                      ? <video src={p.archivo} className="wp-project-media" controls />
+                      : <img src={p.archivo} alt={p.descripcion} className="wp-project-media" />
+                    }
+                    {editando && (
+                      <button className="wp-project-delete" onClick={() => eliminarProyecto(p.id)}>
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+            : <p className="wp-empty">Todavía no subiste proyectos</p>
+          }
       </div>
 
       {/* RESEÑAS */}
@@ -384,13 +391,7 @@ function WorkerProfile() {
       {mensaje && <div className="wp-toast">{mensaje}</div>}
 
       {/* NAVBAR */}
-      <div className="bottom-navbar">
-        <div className="nav-item" onClick={() => navigate("/worker")}><Home size={18} /><span>Inicio</span></div>
-        <div className="nav-item"><Search size={18} /><span>Explorar</span></div>
-        <div className="nav-item" onClick={() => navigate("/worker/publicaciones")}><FileText size={18} /><span>Publicaciones</span></div>
-        <div className="nav-item" onClick={() => navigate("/chats", { state: { role: "worker" } })}><MessageSquare size={18} /><span>Chats</span></div>
-        <div className="nav-item active"><User size={18} /><span>Mi perfil</span></div>
-      </div>
+      <Navbar rol="worker" activo="Mi perfil" />
     </div>
   );
 }

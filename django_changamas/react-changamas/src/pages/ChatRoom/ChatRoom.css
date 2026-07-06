@@ -1,8 +1,31 @@
 .chat-room {
+  /* Valores por defecto (compartidos). Cada vista (cliente/worker)
+     pisa estas variables más abajo, sin duplicar el resto del CSS. */
+  --cr-header-bg: #8d5cf6;
+  --cr-header-text: #ffffff;
+  --cr-accent: #8d5cf6;
+  --cr-sent-bg: #d8c5ff;
+
   height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f7f1e7;
+}
+
+/* CLIENTE — header azul oscuro, acento violeta */
+.chat-room--client {
+    --cr-header-bg: linear-gradient(135deg, #9a6cff, #7d4dff);
+    --cr-header-text: #ffffff;
+    --cr-accent: #6c63ff;
+    --cr-sent-bg: #d9d5ff;
+}
+
+/* WORKER — header naranja, acento violeta (igual paleta que WorkerHome) */
+.chat-room--worker {
+  --cr-header-bg: #eb9d7d;
+  --cr-header-text: #ffffff;
+  --cr-accent: #8d5cf6;
+  --cr-sent-bg: #ecdcff;
 }
 
 .room-header {
@@ -10,8 +33,36 @@
   align-items: center;
   gap: 12px;
   padding: 15px;
-  background: #8d5cf6;
-  color: white;
+  background: var(--cr-header-bg);
+  color: var(--cr-header-text);
+}
+
+.room-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.room-header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.room-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .messages {
@@ -20,21 +71,98 @@
   overflow-y: auto;
 }
 
-.message {
+/* FILA DE MENSAJE: avatar + columna (nombre / burbuja / hora) */
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.msg-row--sent {
+  justify-content: flex-end;
+}
+
+.msg-row--received {
+  justify-content: flex-start;
+}
+
+.msg-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cr-accent);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.msg-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.msg-col {
+  display: flex;
+  flex-direction: column;
   max-width: 70%;
+}
+
+.msg-col--sent {
+  align-items: flex-end;
+}
+
+.msg-col--received {
+  align-items: flex-start;
+}
+
+/* Encabezado (avatar + nombre) dentro de la card recibida */
+.msg-received-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.msg-sender-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6c63ff;
+}
+
+.msg-received-content {
+  margin: 0;
+}
+
+.msg-time {
+  align-self: flex-end;
+  font-size: 10px;
+  color: #9a9aa8;
+  margin-top: 4px;
+}
+
+.message {
   padding: 10px 14px;
   border-radius: 16px;
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #262626;
 }
 
 .received {
-  background: white;
-  align-self: flex-start;
+  background: #f4ede4;
 }
 
 .sent {
-  background: #d8c5ff;
-  margin-left: auto;
+  background: var(--cr-sent-bg);
 }
 
 .message-input {
@@ -53,7 +181,7 @@
 
 .message-input button {
   border: none;
-  background: #8d5cf6;
+  background: var(--cr-accent);
   color: white;
   border-radius: 50%;
   width: 42px;
@@ -159,7 +287,7 @@
   box-sizing: border-box;
 }
 
-.cr-textarea:focus { border-color: #8d5cf6; }
+.cr-textarea:focus { border-color: var(--cr-accent); }
 
 .cr-modal-footer {
   display: flex;
@@ -183,7 +311,7 @@
   padding: 12px;
   border-radius: 12px;
   border: none;
-  background: #8d5cf6;
+  background: var(--cr-accent);
   color: white;
   font-size: 14px;
   font-weight: 700;

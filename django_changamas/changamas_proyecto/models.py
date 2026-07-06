@@ -181,12 +181,13 @@ class Solicitud(models.Model):
 # CHAT
 # ====================
 class Chat(models.Model):
-    publicacion         = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='chats')
-    worker              = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='chats_worker')
-    client              = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='chats_client')
-    creado_en           = models.DateTimeField(auto_now_add=True)
-    worker_completo     = models.BooleanField(default=False)
-    client_completo     = models.BooleanField(default=False)
+    publicacion          = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='chats')
+    worker               = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='chats_worker')
+    client               = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='chats_client')
+    creado_en            = models.DateTimeField(auto_now_add=True)
+    worker_completo      = models.BooleanField(default=False)
+    client_completo      = models.BooleanField(default=False)
+    fecha_hora_encuentro = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Chat {self.id} - {self.publicacion.titulo}"

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('register/', views.register),
     path('login/', views.login),
@@ -11,7 +12,7 @@ urlpatterns = [
     path('perfil/worker/<int:usuario_id>/', views.perfil_worker),
     path('perfil/worker/editar/', views.editar_perfil_worker),
     path('perfil/worker/proyectos/', views.proyectos_worker),
-    path('perfil/worker/proyectos/<int:proyecto_id>/', views.proyectos_worker),
+    path('perfil/worker/proyectos/<int:proyecto_id>/', views.eliminar_proyecto),
     path('perfil/client/otro/<int:usuario_id>/', views.perfil_client),
     path('publicaciones/cliente/', views.publicaciones_cliente),
     path('publicaciones/worker/', views.publicaciones_worker),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('chats/<int:chat_id>/completar/client/', views.completar_trabajo_client),
     path('chats/<int:chat_id>/rechazar-finalizacion/', views.rechazar_finalizacion),
     path('workers/destacados/', views.workers_destacados),
+    path('chats/<int:chat_id>/resumen/', views.resumen_trabajo),
 ]

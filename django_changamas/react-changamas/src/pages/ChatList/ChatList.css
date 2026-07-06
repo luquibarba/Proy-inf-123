@@ -1,12 +1,41 @@
 .chat-list-page {
+  /* Valores por defecto (worker). El modificador --client los pisa
+     más abajo, así no duplicamos el resto del CSS. */
+  --cl-header-bg: linear-gradient(135deg, #8d5cf6, #7645ea);
+  --cl-accent: #8d5cf6;
+  --cl-avatar-grad: linear-gradient(135deg, #8d5cf6, #7645ea);
+  --cl-card-shadow: rgba(141, 92, 246, .15);
+  --cl-navbar-bg: #f7f1e7;
+  --cl-navbar-border: #9b938d;
+
   width: 100%;
   min-height: 100vh;
   background: #f7f1e7;
   padding-bottom: 80px;
 }
 
+/* WORKER — naranja de header (igual que WorkerHome), acento violeta */
+.chat-list-page--worker {
+  --cl-header-bg: linear-gradient(135deg, #eb9d7d, #d97d54);
+  --cl-accent: #8d5cf6;
+  --cl-avatar-grad: linear-gradient(135deg, #8d5cf6, #7645ea);
+  --cl-card-shadow: rgba(141, 92, 246, .15);
+  --cl-navbar-bg: #f7f1e7;
+  --cl-navbar-border: #9b938d;
+}
+
+/* CLIENTE — header azul oscuro, acento violeta más frío */
+.chat-list-page--client {
+  --cl-header-bg: linear-gradient(135deg, #9a6cff, #7d4dff);
+  --cl-accent: #6c63ff;
+  --cl-avatar-grad: linear-gradient(135deg, #6c63ff, #16213e);
+  --cl-card-shadow: rgba(108, 99, 255, .15);
+  --cl-navbar-bg: #ffffff;
+  --cl-navbar-border: #eaeaf2;
+}
+
 .chat-list-header {
-  background: linear-gradient(135deg, #8d5cf6, #7645ea);
+  background: var(--cl-header-bg);
   padding: 18px 24px 28px;
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
@@ -45,7 +74,7 @@
 
 .chat-search-box:focus-within {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(141, 92, 246, .15);
+  box-shadow: 0 6px 15px var(--cl-card-shadow);
 }
 
 .chat-search-box input {
@@ -96,8 +125,8 @@
 
 .chat-card:hover {
   transform: translateY(-3px);
-  border-color: #8d5cf6;
-  box-shadow: 0 10px 24px rgba(141, 92, 246, .15);
+  border-color: var(--cl-accent);
+  box-shadow: 0 10px 24px var(--cl-card-shadow);
 }
 
 .chat-card-left {
@@ -108,7 +137,7 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8d5cf6, #7645ea);
+  background: var(--cl-avatar-grad);
   color: white;
   display: flex;
   align-items: center;
@@ -166,7 +195,7 @@
   min-width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #8d5cf6;
+  background: var(--cl-accent);
   color: white;
   display: flex;
   align-items: center;
@@ -183,8 +212,8 @@
   right: 0;
   width: 100%;
   height: 62px;
-  background: #1a1a2e;
-  border-top: 1px solid #2a2a40;
+  background: var(--cl-navbar-bg);
+  border-top: 1px solid var(--cl-navbar-border);
   display: flex;
   z-index: 100;
 }
@@ -197,12 +226,12 @@
   align-items: center;
   gap: 2px;
   font-size: 10px;
-  color: #555570;
+  color: #7a7a90;
   cursor: pointer;
   transition: .25s ease;
 }
 
 .nav-item.active,
 .nav-item:hover {
-  color: #8d5cf6;
+  color: var(--cl-accent);
 }

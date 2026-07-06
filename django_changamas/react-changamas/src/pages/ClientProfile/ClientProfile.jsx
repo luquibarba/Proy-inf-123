@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import "./ClientProfile.css";
 import { API_URL } from "../../config";
+import Navbar from "../../components/Navbar/Navbar";
 
 function Estrellas({ valor }) {
   return (
@@ -201,13 +202,7 @@ function ClientProfile() {
       {mensaje && <div className="cp-toast">{mensaje}</div>}
 
       {/* NAVBAR */}
-      <div className="bottom-navbar">
-        <div className="nav-item" onClick={() => navigate("/client")}><Home size={18} /><span>Inicio</span></div>
-        <div className="nav-item"><Search size={18} /><span>Buscar</span></div>
-        <div className="nav-item" onClick={() => navigate("/client/publicaciones")}><FileText size={18} /><span>Solicitudes</span></div>
-        <div className="nav-item" onClick={() => navigate("/chats", { state: { role: "client" } })}><MessageSquare size={18} /><span>Chats</span></div>
-        <div className="nav-item active"><User size={18} /><span>Mi perfil</span></div>
-      </div>
+      <Navbar rol="client" activo="Perfil" />
     </div>
   );
 }

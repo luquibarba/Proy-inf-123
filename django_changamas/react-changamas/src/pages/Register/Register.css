@@ -1,26 +1,129 @@
 @import "../Login/Login.css";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
+/* Todo lo scopeado bajo .register-page evita pisar estilos de Login.css,
+   que comparte varias clases genéricas (.role, .divider, .welcome-card, etc). */
+
+/* Reset de box-sizing (igual que Presentation.css) — sin esto, el padding
+   y el borde de los inputs se sumaban por fuera del 100% de ancho y
+   generaban el scroll horizontal. */
+.register-page,
+.register-page *,
+.register-page *::before,
+.register-page *::after {
+  box-sizing: border-box;
+}
+
+.register-page {
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
 /* =========================
-   TOP SECTION
+   TOP SECTION — paleta de Presentation
 ========================= */
 
 .register-top-section {
-  background: linear-gradient(
-    180deg,
-    #e7ab96 0%,
-    #e3a18a 100%
-  );
-
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(165deg, #7A63C4 0%, #6551A7 40%, #574389 70%, #3E2F63 100%);
   border-bottom-left-radius: 42px;
   border-bottom-right-radius: 42px;
-
-  padding: 22px 26px 34px;
-
+  padding: 26px 26px 34px;
   animation: slideTop 0.8s ease;
 }
 
-.register-top-section .logo {
-  margin-bottom: 18px;
+/* Círculos decorativos, igual que en Presentation */
+.register-page .bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: .4;
+  z-index: 0;
+  pointer-events: none;
+  animation: drift 9s ease-in-out infinite;
+}
+
+.register-page .bg-circle.purple {
+  width: 180px;
+  height: 180px;
+  top: -60px;
+  left: -50px;
+  background: #8F72E8;
+}
+
+.register-page .bg-circle.orange {
+  width: 150px;
+  height: 150px;
+  bottom: -50px;
+  right: -50px;
+  background: #FF9330;
+  opacity: .28;
+  animation-delay: -4s;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10px, -14px) scale(1.06); }
+}
+
+.register-top-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================
+   LOGO (badge "C+" como en Presentation)
+========================= */
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.register-logo-badge {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(155deg, #9B7FEE 0%, #7C5FD1 55%, #5F49A6 100%);
+  box-shadow:
+    0 10px 20px rgba(20, 10, 50, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .35),
+    inset 0 -8px 14px rgba(0, 0, 0, .12);
+}
+
+.register-logo-badge .logo-c {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.register-logo-badge .logo-c span {
+  color: #FFA24D;
+}
+
+.register-logo-text {
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  color: white;
+  line-height: 1;
+}
+
+.register-logo-text span {
+  color: #FFA24D;
+  font-weight: 600;
 }
 
 /* =========================
@@ -29,38 +132,65 @@
 
 .register-top-section .welcome-card h1 {
   color: white;
-
-  font-size: 58px;
-
-  line-height: 0.9;
-
+  font-size: 46px;
+  line-height: 0.95;
   font-weight: 800;
-
-  letter-spacing: -3px;
-
-  margin-bottom: 14px;
+  letter-spacing: -2px;
+  margin-bottom: 10px;
 }
 
 .register-top-section .welcome-card p {
-  color: rgba(255,255,255,0.92);
-
-  font-size: 15px;
-
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
   line-height: 1.4;
-
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 /* =========================
-   ROLE BUTTONS
+   ROLE BUTTONS — estilo pill translúcido / naranja activo
 ========================= */
 
+.register-page .role-selector {
+  display: flex !important;
+  gap: 10px;
+  width: 100%;
+}
+
+.register-page .role {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: 0;
+  flex: 1;
+  height: 46px;
+  border-radius: 15px;
+  border: 1.5px solid rgba(255, 255, 255, .35);
+  background: rgba(255, 255, 255, .07);
+  color: rgba(255, 255, 255, .9);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .18s ease, background .25s ease, border-color .25s ease;
+}
+
+.register-page .role:hover {
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .55);
+  transform: translateY(-1px);
+}
+
+.register-page .role:active {
+  transform: translateY(0) scale(.97);
+}
+
 .active-register {
-  background: #ffdccc !important;
-
-  color: #e69374 !important;
-
-  font-weight: bold;
+  background: linear-gradient(135deg, #FFA24D 0%, #FF8A1F 100%) !important;
+  border-color: transparent !important;
+  color: #3A2100 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 22px rgba(255, 138, 31, .35);
 }
 
 /* =========================
@@ -69,81 +199,56 @@
 
 .register-form {
   padding: 24px 30px;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 16px;
-
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-
+  overflow-x: hidden;
   padding-bottom: 120px;
+  width: 100%;
 }
 
-/* Corregir tamaño del CTA para evitar que se vea chiquito/arropado */
-.register-btn {
-  min-height: 74px;
-
-  padding: 0 18px;
-
-  line-height: 1;
-
-  font-size: 20px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
+/* Ningún campo, botón o sección del formulario debe comprimirse:
+   el que scrollea es .register-form, no sus hijos. */
+.register-form > * {
+  flex-shrink: 0;
 }
 
 /* =========================
    INPUT GROUP
 ========================= */
 
-
 .input-group {
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .input-group label {
   font-size: 14px;
-
   color: #6f6f6f;
-
   padding-left: 6px;
 }
 
 /* =========================
-   INPUTS
+   INPUTS — foco en violeta de marca
 ========================= */
 
 .register-form input {
   width: 100%;
-
   height: 58px;
-
   border-radius: 22px;
-
   border: 2px solid #a9a29c;
-
   background: white;
-
   padding: 0 20px;
-
   font-size: 15px;
-
   outline: none;
-
   transition: 0.25s ease;
-
-  box-shadow:
-    0 3px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+  color: #333333;
 }
 
 .register-form input:hover {
@@ -151,14 +256,28 @@
 }
 
 .register-form input:focus {
-  border-color: #e3a18a;
-
-  box-shadow:
-    0 0 0 4px rgba(227,161,138,0.15);
+  border-color: #7C5FD1;
+  box-shadow: 0 0 0 4px rgba(124, 95, 209, 0.15);
 }
 
 .register-form input::placeholder {
   color: #8d8d8d;
+}
+
+/* Estado de error en un input */
+.register-form input.input-error {
+  border-color: #e0524b;
+}
+
+.register-form input.input-error:focus {
+  box-shadow: 0 0 0 4px rgba(224, 82, 75, 0.15);
+}
+
+.field-error {
+  font-size: 12px;
+  color: #e0524b;
+  padding-left: 6px;
+  font-weight: 500;
 }
 
 /* =========================
@@ -167,72 +286,46 @@
 
 .gender-wrapper {
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
 }
 
 .gender-wrapper label {
   font-size: 14px;
-
   color: #6f6f6f;
-
   padding-left: 6px;
 }
 
 .gender-selector {
   display: flex;
-
   height: 58px;
-
   border-radius: 22px;
-
   background: white;
-
   border: 2px solid #a9a29c;
-
   overflow: hidden;
-
   position: relative;
-
-  box-shadow:
-    0 3px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.04);
 }
 
 .gender-selector::after {
   content: "";
-
   position: absolute;
-
   width: 2px;
-
   height: 130%;
-
   background: #b1aaa3;
-
   left: 50%;
-
   top: -8px;
-
-  transform: rotate(28deg);
+  
 }
 
 .gender-btn {
   flex: 1;
-
   border: none;
-
   background: transparent;
-
   font-size: 28px;
-
   cursor: pointer;
-
   transition: all 0.22s ease;
-
   z-index: 2;
-
   color: #333;
 }
 
@@ -245,10 +338,10 @@
 }
 
 .active-gender {
-  background: rgba(255,255,255,0.55);
-
-  box-shadow:
-    inset 0 0 10px rgba(0,0,0,0.03);
+  background: linear-gradient(135deg, #9B7FEE 0%, #7C5FD1 100%) !important;
+  color: #ffffff !important;
+  transform: scale(1.04);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.15), 0 4px 10px rgba(124, 95, 209, 0.35);
 }
 
 /* =========================
@@ -257,12 +350,14 @@
 
 .date-row {
   display: flex;
-
   gap: 12px;
+  width: 100%;
 }
 
 .date-row input {
   text-align: center;
+  min-width: 0;
+  flex: 1;
 }
 
 /* =========================
@@ -271,8 +366,12 @@
 
 .street-row {
   display: flex;
-
   gap: 14px;
+  width: 100%;
+}
+
+.street-row .input-group {
+  min-width: 0;
 }
 
 .street-row .input-group:first-child {
@@ -284,54 +383,87 @@
 }
 
 /* =========================
-   BUTTON
+   ERROR GENERAL (banner)
+========================= */
+
+.form-error-banner {
+  background: #fdeceb;
+  border: 1.5px solid #f3b7b3;
+  color: #c23b33;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 16px;
+  border-radius: 14px;
+}
+
+/* =========================
+   BUTTON — mismo estilo/animación que start-btn de Presentation
 ========================= */
 
 .register-btn {
-  height: 74px;
-  min-height: 74px;
-
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 62px;
+  min-height: 62px;
   border: none;
-
-  border-radius: 22px;
-
-  background: linear-gradient(
-    180deg,
-    #9f6dff 0%,
-    #8654f0 100%
-  );
-
-  color: white;
-
-  font-size: 20px;
-
+  border-radius: 20px;
+  background: linear-gradient(135deg, #FFA24D 0%, #FF8A1F 100%);
+  color: #3A2100;
+  font-size: 18px;
   font-weight: 800;
-
-  letter-spacing: -0.5px;
-
+  letter-spacing: -0.3px;
   cursor: pointer;
-
-  transition: all 0.25s ease;
-
+  font-family: inherit;
+  transition: transform .18s ease, box-shadow .25s ease;
   margin-top: 14px;
-
-  box-shadow:
-    0 14px 26px rgba(134,84,240,0.34);
-
+  box-shadow: 0 14px 28px rgba(255, 138, 31, .35);
   width: 100%;
 }
 
-.register-btn:hover {
-  transform: translateY(-3px);
+.register-btn::before {
+  content: "";
+  position: absolute;
+  left: -120%;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, .35), transparent);
+  transition: left .65s ease;
+}
 
-  box-shadow:
-    0 18px 32px rgba(134,84,240,0.42);
+.register-btn:hover::before {
+  left: 140%;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(255, 138, 31, .45);
 }
 
 .register-btn:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(.98);
+  box-shadow: 0 8px 16px rgba(255, 138, 31, .3);
 }
 
-.register-form input {
-  color: #333333;
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.register-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-page .bg-circle {
+    animation: none;
+  }
+  .register-btn,
+  .register-btn::before {
+    transition: none;
+  }
 }

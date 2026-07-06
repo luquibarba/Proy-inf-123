@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { API_URL } from "../../config";
+import Navbar from "../../components/Navbar/Navbar";
 
 function ChatList() {
   const location = useLocation();
@@ -42,12 +43,7 @@ function ChatList() {
   }, []);
 
   return (
-    <motion.div
-      className="chat-list-page"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <div className="chat-list-page">
       <div className="chat-list-header">
         <div className="chat-logo">changa+</div>
         <h2>Chats</h2>
@@ -83,7 +79,10 @@ function ChatList() {
               }}
             >
               <div className="chat-avatar" style={{ cursor: "pointer" }}>
-                {chat.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}
+                {chat.foto
+                  ? <img src={chat.foto} alt={chat.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                  : chat.name.split(" ").map((word) => word[0]).join("").slice(0, 2)
+                }
               </div>
             </div>
 
@@ -102,27 +101,9 @@ function ChatList() {
           </motion.div>
         ))}
       </div>
-
-      <div className="bottom-navbar">
-        <div className="nav-item" onClick={() => navigate(role === "worker" ? "/worker" : "/client")}>
-          <Home size={18} />
-          <span>Inicio</span>
-        </div>
-        <div className="nav-item"><Search size={18} /><span>Explorar</span></div>
-        <div className="nav-item" onClick={() => navigate(role === "worker" ? "/worker/publicaciones" : "/client/publicaciones")}>
-          <FileText size={18} />
-          <span>{role === "worker" ? "Publicaciones" : "Solicitudes"}</span>
-        </div>
-        <div className="nav-item active">
-          <MessageSquare size={18} />
-          <span>Chats</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate(role === "worker" ? "/worker/perfil" : "/client/perfil")}>
-          <User size={18} />
-          <span>Perfil</span>
-        </div>
-      </div>
-    </motion.div>
+      
+      <Navbar rol={role} activo="Chats" />
+    </div>
   );
 }
 

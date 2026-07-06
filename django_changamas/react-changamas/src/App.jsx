@@ -20,8 +20,8 @@ function App() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Presentation />} />
         <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Presentation />} />
         <Route path="/register" element={<Register />} />
         <Route path="/worker" element={<WorkerHome />} />
         <Route path="/client" element={<ClientHome />} />
@@ -32,6 +32,8 @@ function App() {
         <Route path="/client/publicaciones" element={<ClientPublicaciones />} />
         <Route path="/worker/publicaciones" element={<WorkerPublicaciones />} />
         <Route path="/perfil/usuario/:id" element={<UserProfile />} />
+        <Route path="/presentation" element={<Presentation />} />
+        
       </Routes>
     </AnimatePresence>
   );

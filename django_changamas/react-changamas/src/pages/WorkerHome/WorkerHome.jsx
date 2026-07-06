@@ -3,7 +3,7 @@ import { Home, Search, FileText, MessageSquare, User, MapPin, Star, Clock } from
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { API_URL } from "../../config";
-
+import Navbar from "../../components/Navbar/Navbar";
 const LABEL = {
   plomero: "Plomero", electricista: "Electricista", pintor: "Pintor",
   carpintero: "Carpintero", albanil: "Albañil", gasista: "Gasista",
@@ -207,23 +207,7 @@ function WorkerHome() {
       </div>
 
       {/* NAVBAR */}
-      <div className="bottom-navbar">
-        <div className="nav-item active">
-          <Home size={18} /><span>Inicio</span>
-        </div>
-        <div className="nav-item">
-          <Search size={18} /><span>Explorar</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/worker/publicaciones")}>
-          <FileText size={18} /><span>Publicaciones</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/chats", { state: { role: "worker" } })}>
-          <MessageSquare size={18} /><span>Chats</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/worker/perfil")}>
-          <User size={18} /><span>Mi perfil</span>
-        </div>
-      </div>
+      <Navbar rol="worker" activo="Inicio" />
 
     </div>
   );

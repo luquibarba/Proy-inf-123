@@ -8,11 +8,7 @@
 /* HEADER CLIENTE */
 
 .client-page .worker-header {
-  background: linear-gradient(
-    135deg,
-    #9a6cff,
-    #7d4dff
-  );
+  background: linear-gradient(135deg,#9a6cff,#7d4dff);
 }
 
 .client-page .worker-logo,

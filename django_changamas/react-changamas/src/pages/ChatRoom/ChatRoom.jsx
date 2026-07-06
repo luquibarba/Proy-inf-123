@@ -21,6 +21,42 @@ function Estrellas({ valor, onChange }) {
   );
 }
 
+// ====================
+// MODERACIÓN DE MENSAJES (cliente)
+// ====================
+// Feedback inmediato para el usuario. La validación real y definitiva
+// vive en el backend (mensajes_chat), esto solo evita un viaje al
+// servidor para casos obvios.
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const TELEFONO_REGEX = /(\+?\d[\d\s\-.()]{7,}\d)/;
+const PALABRAS_PROHIBIDAS = [
+  "idiota", "estupido", "imbecil", "pelotudo", "boludo",
+  "puto", "puta", "mierda", "tarado", "inutil", "forro",
+  "pendejo", "concha", "garcha",
+];
+
+const normalizarTexto = (texto) =>
+  texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const validarMensaje = (texto) => {
+  if (EMAIL_REGEX.test(texto)) {
+    return "No podés compartir correos electrónicos por el chat.";
+  }
+  const soloDigitos = texto.replace(/\D/g, "");
+  if (TELEFONO_REGEX.test(texto) && soloDigitos.length >= 8) {
+    return "No podés compartir números de teléfono por el chat.";
+  }
+  const normalizado = normalizarTexto(texto);
+  const palabras = normalizado.match(/\w+/g) || [];
+  if (palabras.some((p) => PALABRAS_PROHIBIDAS.includes(p))) {
+    return "Tu mensaje contiene lenguaje inapropiado.";
+  }
+  return null;
+};
+
 function ChatRoom() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -34,6 +70,7 @@ function ChatRoom() {
   const [miRol, setMiRol] = useState(null);
   const [otroId, setOtroId] = useState(null);
   const [nombreOtro, setNombreOtro] = useState("");
+  const [fotoOtro, setFotoOtro] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [workerCompleto, setWorkerCompleto] = useState(false);
   const [clientCompleto, setClientCompleto] = useState(false);
@@ -69,6 +106,7 @@ function ChatRoom() {
       setMiRol(data.mi_rol);
       setOtroId(data.otro_id);
       setNombreOtro(data.nombre_otro);
+      setFotoOtro(data.foto_otro);
       setWorkerCompleto(data.worker_completo);
       setClientCompleto(data.client_completo);
       setPublicacionEstado(data.publicacion_estado);
@@ -92,6 +130,13 @@ function ChatRoom() {
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
+
+    const motivo = validarMensaje(newMessage);
+    if (motivo) {
+      mostrarToast(motivo);
+      return;
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/chats/${id}/mensajes/`, {
         method: "POST",
@@ -102,10 +147,17 @@ function ChatRoom() {
         body: JSON.stringify({ texto: newMessage }),
       });
       const data = await res.json();
+
+      if (!res.ok) {
+        mostrarToast(data.error || "No se pudo enviar el mensaje");
+        return;
+      }
+
       setMessages(prev => [...prev, data]);
       setNewMessage("");
     } catch (err) {
       console.error("Error al enviar mensaje", err);
+      mostrarToast("Error de conexión al enviar el mensaje");
     }
   };
 
@@ -186,18 +238,28 @@ function ChatRoom() {
   setEnviandoRechazo(false);
 };
   return (
-    <div className="chat-room">
+    <div className={`chat-room ${miRol ? `chat-room--${miRol}` : ""}`}>
 
       <div className="room-header">
         <button onClick={() => navigate(-1)}>
           <ArrowLeft size={20} />
         </button>
         <div
+          className="room-header-user"
           style={{ cursor: "pointer" }}
           onClick={() => navigate(`/perfil/usuario/${otroId}`)}
         >
-          <strong>{nombreOtro || "Chat"}</strong>
-          <p>{publicacionTitulo}</p>
+          <div className="room-header-avatar">
+            {fotoOtro ? (
+              <img src={fotoOtro} alt={nombreOtro} />
+            ) : (
+              (nombreOtro || "?").charAt(0).toUpperCase()
+            )}
+          </div>
+          <div>
+            <strong>{nombreOtro || "Chat"}</strong>
+            <p>{publicacionTitulo}</p>
+          </div>
         </div>
         {publicacionEstado === 'completada' && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#4ecf63", fontSize: 12, fontWeight: 600 }}>
@@ -227,14 +289,39 @@ function ChatRoom() {
         {!cargando && messages.length === 0 && (
           <p style={{ textAlign: "center", color: "#999" }}>No hay mensajes todavía</p>
         )}
-        {messages.map(msg => (
-          <div
-            key={msg.id}
-            className={msg.senderId === miId ? "message sent" : "message received"}
-          >
-            {msg.content}
-          </div>
-        ))}
+        {messages.map(msg => {
+          const esMio = msg.senderId === miId;
+          return (
+            <div
+              key={msg.id}
+              className={`msg-row ${esMio ? "msg-row--sent" : "msg-row--received"}`}
+            >
+              {esMio ? (
+                <div className="msg-col msg-col--sent">
+                  <div className="message sent">{msg.content}</div>
+                  <span className="msg-time">{msg.time}</span>
+                </div>
+              ) : (
+                <div className="msg-col msg-col--received">
+                  <div className="message received">
+                    <div className="msg-received-header">
+                      <div className="msg-avatar">
+                        {fotoOtro ? (
+                          <img src={fotoOtro} alt={nombreOtro} />
+                        ) : (
+                          (nombreOtro || "?").charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <span className="msg-sender-name">{nombreOtro}</span>
+                    </div>
+                    <div className="msg-received-content">{msg.content}</div>
+                    <span className="msg-time">{msg.time}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 

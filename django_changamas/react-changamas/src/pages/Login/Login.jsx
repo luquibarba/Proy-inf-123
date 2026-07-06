@@ -51,28 +51,36 @@ function Login() {
 
   return (
     <motion.div
-      className="phone-container"
-      initial={{ opacity: 0, x: 40 }}
+      className="phone-container login-page"
+      initial={{ opacity: 0, x: "-100%" }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.35 }}
+      exit={{ opacity: 0, x: "100%" }}
+      transition={{ duration: 0.45, ease: "easeInOut" }}
     >
-      <div className="top-section">
-        <div className="logo">changa+</div>
+      <div className="login-top-section">
+        <div className="bg-circle purple"></div>
+        <div className="bg-circle orange"></div>
+
+        <div className="login-logo">
+          <div className="login-logo-badge">
+            <span className="logo-c">C<span>+</span></span>
+          </div>
+          <span className="login-logo-text">changa<span>+</span></span>
+        </div>
 
         <div className="welcome-card">
-          <h1>Bienvenido de nuevo</h1>
+          <h1>Bienvenido<br />de nuevo</h1>
           <p>Inicia sesión para continuar</p>
 
           <div className="role-selector">
             <button
-              className={`role ${selectedRole === "Trabajador" ? "active" : ""}`}
+              className={`role ${selectedRole === "Trabajador" ? "active-login" : ""}`}
               onClick={() => setSelectedRole("Trabajador")}
             >
               Trabajador
             </button>
             <button
-              className={`role ${selectedRole === "Cliente" ? "active" : ""}`}
+              className={`role ${selectedRole === "Cliente" ? "active-login" : ""}`}
               onClick={() => setSelectedRole("Cliente")}
             >
               Cliente
@@ -81,23 +89,31 @@ function Login() {
         </div>
       </div>
 
-      <div className="form-section">
+      <div className="login-form">
 
-        <input
-          type="email"
-          placeholder="Correo Electrónico"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="input-group">
+          <label>Correo Electrónico</label>
+          <input
+            type="email"
+            placeholder="Correo Electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="input-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         <span className="forgot">¿Olvidaste tu contraseña?</span>
 
-        {error && <p style={{ color: "red", textAlign: "center", fontSize: "14px" }}>{error}</p>}
+        {error && <p className="form-error-banner">{error}</p>}
 
         <button
           className="login-btn"

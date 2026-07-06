@@ -1,3 +1,4 @@
+import Navbar from "../../components/Navbar/Navbar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +8,7 @@ import {
 } from "lucide-react";
 import "./ClientPublicaciones.css";
 import { API_URL } from "../../config";
-
+import "../WorkerPublicaciones/WorkerPublicaciones.css";
 const CATEGORIAS = [
   "plomero", "electricista", "pintor", "carpintero",
   "albanil", "gasista", "cerrajero", "jardinero", "techista", "otros",
@@ -35,6 +36,9 @@ function ClientPublicaciones() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access");
 
+  const [modalResumen, setModalResumen] = useState(null);
+  const [resumen, setResumen] = useState(null);
+  const [cargandoResumen, setCargandoResumen] = useState(false);
   const [menuAbierto, setMenuAbierto] = useState(null); 
   const [modalEditar, setModalEditar] = useState(null); 
   const [formEditar, setFormEditar] = useState({ titulo: "", descripcion: "", categoria: "" });
@@ -151,6 +155,20 @@ function ClientPublicaciones() {
   }
   };
 
+  const abrirResumen = async (chatId) => {
+  setModalResumen(chatId);
+  setCargandoResumen(true);
+  try {
+    const res = await fetch(`${API_URL}/api/chats/${chatId}/resumen/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setResumen(data);
+  } catch (err) {
+    mostrarToast("Error al cargar el resumen");
+  }
+  setCargandoResumen(false);
+  };
   const editarPublicacion = async () => {
       const res = await fetch(`${API_URL}/api/publicaciones/${modalEditar.id}/gestionar/`, {
         method: "PUT",
@@ -178,9 +196,6 @@ function ClientPublicaciones() {
         <div className="cp-logo">changa+</div>
         <div className="cp-header-row">
           <h2>Mis publicaciones</h2>
-          <button className="cp-new-btn" onClick={() => setMostrarModal(true)}>
-            <Plus size={16} /> Nueva
-          </button>
         </div>
       </div>
 
@@ -245,6 +260,22 @@ function ClientPublicaciones() {
                 </a>
               )}
             </div>
+            {pub.estado === 'en_proceso' && pub.chat_id && (
+              <div className="cp-btns-row">
+                <button
+                  className="cp-resumen-btn"
+                  onClick={() => abrirResumen(pub.chat_id)}
+                >
+                  Resumen del trabajo
+                </button>
+                <button
+                  className="cp-ir-chat-btn"
+                  onClick={() => navigate(`/chat/${pub.chat_id}`)}
+                >
+                  Ir al chat
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -477,26 +508,92 @@ function ClientPublicaciones() {
         </div>
       )}
       
+      {/* MODAL RESUMEN TRABAJO */}
+      {modalResumen && (
+        <div className="wp-modal-overlay" onClick={() => setModalResumen(null)}>
+          <div className="wp-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="wp-modal-header">
+              <h3>Resumen del trabajo</h3>
+              <button onClick={() => setModalResumen(null)}><X size={20} /></button>
+            </div>
+
+            {cargandoResumen ? (
+              <div className="cp-center"><Loader size={24} className="cp-spin" /></div>
+            ) : resumen && (
+              <div className="cp-modal-body">
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Trabajo</span>
+                  <span className="cp-presupuesto-valor">{resumen.titulo}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Trabajador</span>
+                  <span
+                    className="cp-presupuesto-valor"
+                    style={{ cursor: "pointer", textDecoration: "underline", color: "#8d5cf6" }}
+                    onClick={() => navigate(`/perfil/usuario/${resumen.worker_id}`)}
+                  >
+                    {resumen.worker_nombre}
+                  </span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">DNI del trabajador</span>
+                  <span className="cp-presupuesto-valor">{resumen.worker_dni}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Dirección del cliente</span>
+                  <span className="cp-presupuesto-valor">{resumen.cliente_calle} {resumen.cliente_numero}, {resumen.cliente_provincia}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Presupuesto acordado</span>
+                  <span className="cp-presupuesto-valor">${resumen.presupuesto}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Descripción del trabajo</span>
+                  <span className="cp-presupuesto-valor">{resumen.descripcion}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Fecha de concordancia</span>
+                  <span className="cp-presupuesto-valor">{resumen.fecha_concordancia}</span>
+                </div>
+                <div className="cp-presupuesto-row">
+                  <span className="cp-presupuesto-label">Fecha y hora de encuentro</span>
+                  <span className="cp-presupuesto-valor">
+                    {resumen.fecha_hora_encuentro
+                      ? resumen.fecha_hora_encuentro
+                      : <span style={{ color: "#aaa", fontStyle: "italic" }}>Sin definir aún por el trabajador</span>
+                    }
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="wp-modal-footer">
+              <button className="cp-cancel-btn" onClick={() => setModalResumen(null)}>Cerrar</button>
+              {resumen && (
+                <button
+                  className="cp-submit-btn"
+                  onClick={() => {
+                    setModalResumen(null);
+                    navigate(`/chat/${modalResumen}`);
+                  }}
+                >
+                  Ir al chat
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOTÓN FLOTANTE */}
+      <button className="cp-fab-btn" onClick={() => setMostrarModal(true)}>
+        <Plus size={22} />
+      </button>
+      
       {toast && <div className="cp-toast">{toast}</div>}
 
       {/* NAVBAR */}
-      <div className="bottom-navbar">
-        <div className="nav-item" onClick={() => navigate("/client")}>
-          <Home size={18} /><span>Inicio</span>
-        </div>
-        <div className="nav-item">
-          <Search size={18} /><span>Buscar</span>
-        </div>
-        <div className="nav-item active">
-          <FileText size={18} /><span>Solicitudes</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/chats", { state: { role: "client" } })}>
-          <MessageSquare size={18} /><span>Chat</span>
-        </div>
-        <div className="nav-item" onClick={() => navigate("/client/perfil")}>
-          <User size={18} /><span>Perfil</span>
-        </div>
-      </div>
+      <Navbar rol="client" activo="Solicitudes" />
     </div>
   );
 }
